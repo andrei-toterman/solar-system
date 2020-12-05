@@ -14,25 +14,18 @@ void Camera::update(std::array<bool, State::keys_n> held_keys, State::Delta& del
     look(delta.mouse_x, delta.mouse_y);
     zoom(delta.mouse_scroll);
     // glfw nu seteaza offseturile la 0 daca nu se intapmpla nimic, asa ce le setam aci dupa ce le folosim
-    delta.mouse_x = 0.0f;
-    delta.mouse_y = 0.0f;
+    delta.mouse_x      = 0.0f;
+    delta.mouse_y      = 0.0f;
     delta.mouse_scroll = 0.0f;
 }
 
 void Camera::move(float delta_time, std::array<bool, State::keys_n> held_keys) {
     float velocity = movement_speed * delta_time;
-    if (held_keys[State::W]) {
-        position += front * velocity;
-    }
-    if (held_keys[State::A]) {
-        position -= right * velocity;
-    }
-    if (held_keys[State::S]) {
-        position -= front * velocity;
-    }
-    if (held_keys[State::D]) {
-        position += right * velocity;
-    }
+    // held_keys are boolene, deci daca e false se inmulteste cu 0, deci nu se intampla nimic, daca e true, se inmulteste cu 1, deci se aduna in mod normal; e mai scurt decat cu cate un if la fiecare
+    position += held_keys[State::W] * velocity * front;
+    position -= held_keys[State::A] * velocity * right;
+    position -= held_keys[State::S] * velocity * front;
+    position += held_keys[State::D] * velocity * right;
 }
 
 void Camera::look(float delta_x, float delta_y) {
