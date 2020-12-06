@@ -19,7 +19,7 @@ std::string Shader::read_shader_source(const char* path) {
     std::string   source_code;
     source_code.reserve(input_file.tellg());
     input_file.seekg(0, std::ios::beg);
-    source_code.assign(std::istreambuf_iterator<char>{ input_file }, {});
+    source_code.assign(std::istreambuf_iterator{ input_file }, {});
     return source_code;
 }
 

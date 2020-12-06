@@ -9,7 +9,7 @@ glm::mat4 Camera::view_matrix() const {
     return glm::lookAt(position, position + front, up);
 }
 
-void Camera::update(std::array<bool, State::keys_n> held_keys, State::Delta& delta) {
+void Camera::update(const std::array<bool, State::keys_n>& held_keys, State::Delta& delta) {
     move(delta.time, held_keys);
     look(delta.mouse_x, delta.mouse_y);
     zoom(delta.mouse_scroll);
@@ -19,13 +19,13 @@ void Camera::update(std::array<bool, State::keys_n> held_keys, State::Delta& del
     delta.mouse_scroll = 0.0f;
 }
 
-void Camera::move(float delta_time, std::array<bool, State::keys_n> held_keys) {
+void Camera::move(float delta_time, const std::array<bool, State::keys_n>& held_keys) {
     float velocity = movement_speed * delta_time;
     // held_keys are boolene, deci daca e false se inmulteste cu 0, deci nu se intampla nimic, daca e true, se inmulteste cu 1, deci se aduna in mod normal; e mai scurt decat cu cate un if la fiecare
-    position += held_keys[State::W] * velocity * front;
-    position -= held_keys[State::A] * velocity * right;
-    position -= held_keys[State::S] * velocity * front;
-    position += held_keys[State::D] * velocity * right;
+    position += (float) held_keys[State::W] * velocity * front;
+    position -= (float) held_keys[State::A] * velocity * right;
+    position -= (float) held_keys[State::S] * velocity * front;
+    position += (float) held_keys[State::D] * velocity * right;
 }
 
 void Camera::look(float delta_x, float delta_y) {

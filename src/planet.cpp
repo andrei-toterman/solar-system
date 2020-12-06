@@ -9,16 +9,16 @@ Planet::Planet(const glm::vec3& _position, const glm::vec3& _scale, const char* 
 
     for (int i = 0; i <= precision; i++) {
         for (int j = 0; j <= precision; j++) {
-            float phi = M_PI * (1.0f - (float) i / (float) precision);
-            float psi = M_PI * 2.0f * (float) j / (float) precision;
+            float phi = M_PI * (1.0f - (float) i / precision);
+            float psi = M_PI * 2.0f * (float) j / precision;
             auto  x   = -glm::cos(psi) * glm::sin(phi);
             auto  y   = glm::cos(phi);
             auto  z   = glm::sin(psi) * glm::sin(phi);
             auto  u   = (float) j / precision;
             auto  v   = (float) i / precision;
-            vertices.push_back(Vertex{{ x, y, z },
-                                      { x, y, z },
-                                      { u, v }});
+            vertices.push_back({{ x, y, z },
+                                { x, y, z },
+                                { u, v }});
 
             indices.push_back(i * (precision + 1) + j);
             indices.push_back(i * (precision + 1) + j + 1);

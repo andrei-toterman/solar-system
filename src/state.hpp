@@ -13,7 +13,7 @@ struct State {
         float mouse_x{ 0.0f };
         float mouse_y{ 0.0f };
         float mouse_scroll{ 0.0f };
-    }      delta;
+    } delta;
 
     float  last_time{ 0.0f };
     double last_mouse_x{ WIDTH / 2.0 };

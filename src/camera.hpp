@@ -27,10 +27,10 @@ struct Camera {
     [[nodiscard]] glm::mat4 view_matrix() const;
 
     // aici udatam camera, aka apelam functiile de mai jos
-    void update(std::array<bool, State::keys_n> held_keys, State::Delta& delta);
+    void update(const std::array<bool, State::keys_n>& held_keys, State::Delta& delta);
 
     // schimba pozitia camerei cu WASD. da nu si directia in care se uita. numa pozitia
-    void move(float delta_time, std::array<bool, State::keys_n> held_keys);
+    void move(float delta_time, const std::array<bool, State::keys_n>& held_keys);
 
     // cu asta misti camera cu mouseu aka schimbi unghiurile alea cu ox si oy
     void look(float delta_x, float delta_y);

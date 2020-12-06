@@ -1,29 +1,26 @@
 #include "cube.hpp"
 
 Cube::Cube(const glm::vec3& _position, const glm::vec3& _scale) : position{ _position }, scale{ _scale } {
+    vertices.reserve(8);
+    indices.reserve(36);
 
-    vertices.push_back({{ -1.0f, -1.0f, -1.0f }});
-    vertices.push_back({{ 1.0f, -1.0f, -1.0f }});
-    vertices.push_back({{ 1.0f, -1.0f, 1.0f }});
-    vertices.push_back({{ -1.0f, -1.0f, 1.0f }});
-    vertices.push_back({{ -1.0f, 1.0f, -1.0f }});
-    vertices.push_back({{ 1.0f, 1.0f, -1.0f }});
-    vertices.push_back({{ 1.0f, 1.0f, 1.0f }});
-    vertices.push_back({{ -1.0f, 1.0f, 1.0f }});
+    vertices.assign({{{ -1.0f, -1.0f, -1.0f }},
+                     {{ 1.0f,  -1.0f, -1.0f }},
+                     {{ 1.0f,  -1.0f, 1.0f }},
+                     {{ -1.0f, -1.0f, 1.0f }},
+                     {{ -1.0f, 1.0f,  -1.0f }},
+                     {{ 1.0f,  1.0f,  -1.0f }},
+                     {{ 1.0f,  1.0f,  1.0f }},
+                     {{ -1.0f, 1.0f,  1.0f }},
+                    });
 
     indices.assign({
-                           0, 1, 2, //
-                           0, 2, 3, //
-                           2, 3, 6, //
-                           3, 6, 7, //
-                           1, 2, 5, //
-                           2, 5, 6, //
-                           0, 1, 4, //
-                           1, 4, 5, //
-                           0, 4, 7, //
-                           0, 3, 7, //
-                           4, 5, 7, //
-                           5, 6, 7, //
+                           0, 1, 2, 0, 2, 3, //
+                           2, 3, 6, 3, 6, 7, //
+                           1, 2, 5, 2, 5, 6, //
+                           0, 1, 4, 1, 4, 5, //
+                           0, 4, 7, 0, 3, 7, //
+                           4, 5, 7, 5, 6, 7, //
                    });
 
     glGenVertexArrays(1, &vao);

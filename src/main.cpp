@@ -33,12 +33,13 @@ int main() {
         return 1;
     }
 
-    State state{};
-    Camera camera{{ 0.0f, 0.0f, 0.0f }};
-
     glfwMakeContextCurrent(window);
-    // ii dam la window app-stateu, ca sa poata fi accesat in callbackuri
-    glfwSetWindowUserPointer(window, &state);
+
+    if (glewInit() != GLEW_OK) {
+        std::cerr << "failed to initialize GLEW" << std::endl;
+        return 1;
+    }
+
     // aci setam ce callbackuri se apeleaza cand se misca mouseu, scrollu sau se apasa pe taste
     glfwSetCursorPosCallback(window, mouse_callback);
     glfwSetScrollCallback(window, scroll_callback);
@@ -46,12 +47,10 @@ int main() {
     // asta face cursoru sa dispara si sa ramana in fereastra. dai exit sa iesi
     glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 
-    if (glewInit() != GLEW_OK) {
-        std::cerr << "failed to initialize GLEW" << std::endl;
-        return 1;
-    }
-
-    glEnable(GL_DEPTH_TEST);
+    State  state{};
+    Camera camera{{ 0.0f, 0.0f, 0.0f }};
+    // ii dam la window app-stateu, ca sa poata fi accesat in callbackuri
+    glfwSetWindowUserPointer(window, &state);
 
     // vector de planete. in viitor cel mai probabil aici o sa initializam doar gen soarele sau ce o fi, la care ii adaugam dupa planetele
     std::vector<Planet> objects;
@@ -63,6 +62,7 @@ int main() {
     Shader shader{ "shaders/vertex.glsl", "shaders/fragment.glsl" };
     glUseProgram(shader.id);
 
+    glEnable(GL_DEPTH_TEST);
     while (!glfwWindowShouldClose(window)) {
         // asta calculeaza cat timp se scurge intre cadre, ca sa poti sa te folosesti de asta cand misti camera si sa fie mai smooth
         auto time = (float) glfwGetTime();
@@ -75,8 +75,8 @@ int main() {
         // updatam camera in functie de ce chestii face useru
         camera.update(state.held_keys, state.delta);
 
-        glm::mat4 proj = glm::perspective(glm::radians(camera.fov), (float) WIDTH / HEIGHT, 0.1f, 100.0f);
-        glm::mat4 view = camera.view_matrix();
+        glm::mat4 proj{ glm::perspective(glm::radians(camera.fov), (float) WIDTH / HEIGHT, 0.1f, 100.0f) };
+        glm::mat4 view{ camera.view_matrix() };
 
         // iteram prin obiecte si le calculam la fiecare model matrixu in functie de pozitia si marimea lor, le trimitem la shader, si le dam draw
         for (const auto& object: objects) {
@@ -100,8 +100,8 @@ void mouse_callback(GLFWwindow* window, double x, double y) {
     auto state = (State*) glfwGetWindowUserPointer(window);
 
     // astea trebe pentru ca GLFW iti da pozitia curenta a mouseului in fereastra, da pe camera o intereseaza cat si cum s-o miscat mouseu fata de unde era data trecuta, nu fix unde e acuma
-    state->delta.mouse_x = x - state->last_mouse_x;
-    state->delta.mouse_y = state->last_mouse_y - y;
+    state->delta.mouse_x = (float) (x - state->last_mouse_x);
+    state->delta.mouse_y = (float) (state->last_mouse_y - y);
 
     state->last_mouse_x = x;
     state->last_mouse_y = y;
@@ -109,7 +109,7 @@ void mouse_callback(GLFWwindow* window, double x, double y) {
 
 void scroll_callback(GLFWwindow* window, double, double delta_scroll) {
     auto state = (State*) glfwGetWindowUserPointer(window);
-    state->delta.mouse_scroll = delta_scroll;
+    state->delta.mouse_scroll = (float) delta_scroll;
 }
 
 void key_callback(GLFWwindow* window, int key, int, int action, int) {
