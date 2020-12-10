@@ -12,7 +12,7 @@ struct Planet {
     // indicii vertecshilor. un vertex o sa fie folosit in mai multe triunghiuri, asa ca in loc sa tinem acelasi vertex de mai multe ori, tinem numa indexu lui din vectoru vertices
     std::vector<unsigned int> indices;
     // id-u la textura. inca nu are functie de load
-    unsigned int              texture{};
+    GLuint                      texture;
     // vao - Vertex Array Objectu unei planete. in mod normal asa se face treaba. ai unu de asta per obiect si ii dai bind cand vrei sa-l desenezi
     // in el se tin toate chestiile legate de configuratia vertecshilor, si asa nu mai tre setati din nou la fiecare draw call
     // vbo - Vertex Buffer Object. in el e lista de vertecshi, cu tot cu pozitii, normale si coordonate de textura; basically tine informatiile din vectoru vertices
@@ -26,7 +26,13 @@ struct Planet {
     // pozitia
     glm::vec3 position;
 
+    std::vector<Planet> satellites;
+
+    float distance;
+
     Planet(const glm::vec3& _position, const glm::vec3& _scale, const char* texture_path = nullptr);
 
     void render() const;
+
+    void addPlanet(Planet planet);
 };
