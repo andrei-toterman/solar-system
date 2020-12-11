@@ -1,24 +1,30 @@
 #include "planet.hpp"
+#include <glm/gtc/constants.hpp>
 
-Planet::Planet(const glm::vec3& _position, const glm::vec3& _scale, const char* texture_path) :
-        position{ _position }, scale{ _scale } {
+Planet::Planet(const glm::vec3& _position, float _scale, float _distance, float _rotation_speed,
+               const char* texture_path) :
+        position{ _position }, scale{ _scale }, distance{ _distance }, rotation_speed{ _rotation_speed } {
     // basically codu de la lab da mai frumix
     const unsigned int precision = 48;
     vertices.reserve((precision + 1) * (precision + 1));
     indices.reserve(precision * precision * 6);
 
     for (int i = 0; i <= precision; i++) {
-        for (int j = 0; j <= precision; j++) {
-            float phi = M_PI * (1.0f - (float) i / precision);
-            float psi = M_PI * 2.0f * (float) j / precision;
-            auto  x   = -glm::cos(psi) * glm::sin(phi);
-            auto  y   = glm::cos(phi);
-            auto  z   = glm::sin(psi) * glm::sin(phi);
-            auto  u   = (float) j / precision;
-            auto  v   = (float) i / precision;
+        float    phi = glm::pi<float>() * (float) i / precision;
+        for (int j   = 0; j <= precision; j++) {
+            float theta = glm::pi<float>() * 2.0f * (float) j / precision;
+            auto  x     = -glm::cos(theta) * glm::sin(phi);
+            auto  y     = glm::cos(phi);
+            auto  z     = glm::sin(theta) * glm::sin(phi);
+            auto  u     = (float) j / precision;
+            auto  v     = (float) i / precision;
             vertices.push_back({{ x, y, z },
                                 { x, y, z },
                                 { u, v }});
+
+            if (i == precision || j == precision) {
+                continue;
+            }
 
             indices.push_back(i * (precision + 1) + j);
             indices.push_back(i * (precision + 1) + j + 1);
@@ -59,6 +65,8 @@ Planet::Planet(const glm::vec3& _position, const glm::vec3& _scale, const char* 
 
     // dam un-bind la VAO, ca sa nu ramana activ daca nu trebe
     glBindVertexArray(0);
+
+    texture = SOIL_load_OGL_texture(texture_path, SOIL_LOAD_AUTO, SOIL_CREATE_NEW_ID, 0);
 }
 
 void Planet::render() const {
@@ -66,12 +74,8 @@ void Planet::render() const {
     glBindTexture(GL_TEXTURE_2D, texture);
     // dam bind la VAO, si el stie deja de unde sa isi ia vertecshii si cum sunt aranjati, ca o tinut minte care ii VBOu, si si EBOu
     glBindVertexArray(vao);
-
     // desenam vertecshii cu indicii din EBO
     glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, nullptr);
-
     // dam unbind la VAO
     glBindVertexArray(0);
-    // asta nu mai stiu ce face da o sa aflu
-    glActiveTexture(GL_TEXTURE0);
 }

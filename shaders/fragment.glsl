@@ -1,8 +1,9 @@
 #version 330
 
-in vec4 vertex_color;
 out vec4 color;
+in vec2 tc;
+uniform sampler2D samp;
 
 void main() {
-    color = vertex_color;
+    color = texture(samp, tc);
 }
