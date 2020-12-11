@@ -4,6 +4,7 @@
 
 #include <vector>
 #include "vertex.hpp"
+#include "SOIL2.h"
 
 // asta ii planeta de baza. inca nu are chestii care sa orbiteze in juru ei. o sa aiba un vector<Planet> cel mai probabil
 struct Planet {
@@ -30,7 +31,9 @@ struct Planet {
 
     float distance;
 
-    Planet(const glm::vec3& _position, const glm::vec3& _scale, const char* texture_path = nullptr);
+    float rotation_speed;
+
+    Planet(const glm::vec3& _position, const glm::vec3& _scale, const char* texture_path, float distance, float rotation_speed);
 
     void render() const;
 

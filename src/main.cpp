@@ -11,26 +11,21 @@
 #include "state.hpp"
 #include "camera.hpp"
 
-GLuint loadTexture(const char* texImagePath) {
-	GLuint textureID;
-	textureID = SOIL_load_OGL_texture(texImagePath, SOIL_LOAD_AUTO, SOIL_CREATE_NEW_ID, SOIL_FLAG_INVERT_Y);
-	if (textureID == 0)
-		printf("could not find texture file\n");
-	return textureID;
-}
-
 void mouse_callback(GLFWwindow* window, double x, double y);
 
 void scroll_callback(GLFWwindow* window, double, double delta_scroll);
 
 void key_callback(GLFWwindow* window, int key, int, int action, int);
 
+float base_size = 0.2f;
+float base_distance = 6.0f;
+
 void render_satellites_of_satellite(Planet planet, Shader shader, glm::mat4 proj, glm::mat4 view, glm::mat4 model) {
 	for (int i = 0; i < planet.satellites.size(); i++) {
 		Planet satellite = planet.satellites.at(i);
-		model = glm::rotate(model, 8 * (float)glfwGetTime() / satellite.distance, glm::vec3(0.0f, 1.0f, 0.0f));
-		model = glm::translate(model, glm::vec3(satellite.distance, 0.0f, satellite.distance));
-		model = glm::scale(model, satellite.scale);
+		model = glm::rotate(model, satellite.rotation_speed * (float)glfwGetTime() / (satellite.distance * base_distance), glm::vec3(0.0f, 1.0f, 0.0f));
+		model = glm::translate(model, glm::vec3(satellite.distance * base_distance, 0.0f, satellite.distance * base_distance));
+		model = glm::scale(model, satellite.scale * base_size);
 		shader.set_mvp(proj * view * model);
 		satellite.render();
 	}
@@ -41,9 +36,9 @@ void render_satellites(Planet planet, Shader shader, glm::mat4 proj, glm::mat4 v
 		Planet satellite = planet.satellites.at(i);
 		glm::mat4 model = glm::mat4{ 1.0f };
 		model = glm::translate(model, planet.position);
-		model = glm::rotate(model, 8 * (float)glfwGetTime() / satellite.distance, glm::vec3(0.0f, 1.0f, 0.0f));
-		model = glm::translate(model, glm::vec3(satellite.distance, 0.0f, satellite.distance));
-		model = glm::scale(model, satellite.scale);
+		model = glm::rotate(model, satellite.rotation_speed * (float)glfwGetTime() / (satellite.distance * base_distance), glm::vec3(0.0f, 1.0f, 0.0f));
+		model = glm::translate(model, glm::vec3(satellite.distance * base_distance, 0.0f, satellite.distance * base_distance));
+		model = glm::scale(model, satellite.scale * base_size);
 		shader.set_mvp(proj * view * model);
 		satellite.render();
 		if (satellite.satellites.size() != 0)render_satellites_of_satellite(satellite, shader, proj, view, model);
@@ -85,43 +80,26 @@ int main() {
 	// ii dam la window app-stateu, ca sa poata fi accesat in callbackuri
 	glfwSetWindowUserPointer(window, &state);
 
+	if (glewIsSupported("GL_EXT_texture_filter_anisotropic"))
+	{
+		GLfloat anisoSetting = 0.0f;
+		glGetFloatv(GL_MAX_TEXTURE_MAX_ANISOTROPY_EXT, &anisoSetting);
+		glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAX_ANISOTROPY_EXT, anisoSetting);
+	}
+
 	// vector de planete. in viitor cel mai probabil aici o sa initializam doar gen soarele sau ce o fi, la care ii adaugam dupa planetele
 	std::vector<Planet> planets;
-	float baseSize = 0.2f;
-	float baseDistance = 6.0f;
-	Planet sun = Planet(glm::vec3{ 0.0f, 0.0f, 0.0f }, glm::vec3{ 8.0f });
-	sun.texture = loadTexture("res/sun.jpg");
-	sun.distance = 0.0f * baseDistance;
-	Planet mercury = Planet(glm::vec3{ 0.0f, 0.0f, 0.0f }, glm::vec3{ baseSize * 1.0f });
-	mercury.texture = loadTexture("res/mercury.jpg");
-	mercury.distance = 1.0f * baseDistance;
-	Planet venus = Planet(glm::vec3{ 0.0f, 0.0f, 0.0f }, glm::vec3{ baseSize * 1.15f });
-	venus.texture = loadTexture("res/venus.jpg");
-	venus.distance = 1.09f * baseDistance;
-	Planet earth = Planet(glm::vec3{ 10.0f, 0.0f, 0.0f }, glm::vec3{ baseSize * 1.16f });
-	earth.texture = loadTexture("res/earth.jpg");
-	earth.distance = 1.16f * baseDistance;
-	Planet moon = Planet(glm::vec3{ 0.0f, 0.0f, 0.0f }, glm::vec3{ baseSize * 1.0f });
-	moon.texture = loadTexture("res/moon.jpg");
-	moon.distance = 0.155f * baseDistance;
-	Planet mars = Planet(glm::vec3{ 0.0f, 0.0f, 0.0f }, glm::vec3{ baseSize * 1.04f });
-	mars.texture = loadTexture("res/mars.png");
-	mars.distance = 1.30f * baseDistance;
-	Planet jupiter = Planet(glm::vec3{ 0.0f, 0.0f, 0.0f }, glm::vec3{ baseSize * 3.81f });
-	jupiter.texture = loadTexture("res/jupiter.jpg");
-	jupiter.distance = 2.27f * baseDistance;
-	Planet saturn = Planet(glm::vec3{ 0.0f, 0.0f, 0.0f }, glm::vec3{ baseSize * 3.33f });
-	saturn.texture = loadTexture("res/saturn.jpg");
-	saturn.distance = 3.41f * baseDistance;
-	Planet uranus = Planet(glm::vec3{ 0.0f, 0.0f, 0.0f }, glm::vec3{ baseSize * 1.95f });
-	uranus.texture = loadTexture("res/uranus.jpg");
-	uranus.distance = 5.95f * baseDistance;
-	Planet neptune = Planet(glm::vec3{ 0.0f, 0.f, 0.0f }, glm::vec3{ baseSize * 1.93f });
-	neptune.texture = loadTexture("res/neptune.jpg");
-	neptune.distance = 8.79f * baseDistance;
-	Planet pluto = Planet(glm::vec3{ 0.0f, 0.0f, 0.0f }, glm::vec3{ baseSize * 0.95f });
-	pluto.texture = loadTexture("res/pluto.jpg");
-	pluto.distance = 11.25f * baseDistance;
+	Planet sun = Planet(glm::vec3{ 0.0f, 0.0f, 0.0f }, glm::vec3{ 8.0f }, "res/sun.jpg", 0.0f, 8);
+	Planet mercury = Planet(glm::vec3{ 0.0f, 0.0f, 0.0f }, glm::vec3{ 1.0f }, "res/mercury.jpg", 1.0f, 8);
+	Planet venus = Planet(glm::vec3{ 0.0f, 0.0f, 0.0f }, glm::vec3{ 1.15f }, "res/venus.jpg", 1.09f, 8);
+	Planet earth = Planet(glm::vec3{ 0.0f, 0.0f, 0.0f }, glm::vec3{ 1.16f }, "res/earth.jpg", 1.16f, 8);
+	Planet moon = Planet(glm::vec3{ 0.0f, 0.0f, 0.0f }, glm::vec3{ 1.0f }, "res/moon.jpg", 0.155f, 8);
+	Planet mars = Planet(glm::vec3{ 0.0f, 0.0f, 0.0f }, glm::vec3{ 1.04f }, "res/mars.png", 1.30f, 8);
+	Planet jupiter = Planet(glm::vec3{ 0.0f, 0.0f, 0.0f }, glm::vec3{ 3.81f }, "res/jupiter.jpg", 2.27f, 8);
+	Planet saturn = Planet(glm::vec3{ 0.0f, 0.0f, 0.0f }, glm::vec3{ 3.33f }, "res/saturn.jpg", 3.41f, 8);
+	Planet uranus = Planet(glm::vec3{ 0.0f, 0.0f, 0.0f }, glm::vec3{ 1.95f }, "res/uranus.jpg", 5.95f, 8);
+	Planet neptune = Planet(glm::vec3{ 0.0f, 0.f, 0.0f }, glm::vec3{ 1.93f }, "res/neptune.jpg", 8.79f, 8);
+	Planet pluto = Planet(glm::vec3{ 0.0f, 0.0f, 0.0f }, glm::vec3{ 0.95f }, "res/pluto.jpg", 11.25f, 8);
 
 	earth.addPlanet(moon);
 	sun.addPlanet(mercury);

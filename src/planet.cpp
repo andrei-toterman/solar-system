@@ -1,7 +1,7 @@
 #include "planet.hpp"
 #include <glm/gtc/constants.hpp>
 
-Planet::Planet(const glm::vec3& _position, const glm::vec3& _scale, const char* texture_path) :
+Planet::Planet(const glm::vec3& _position, const glm::vec3& _scale, const char* texture_path, float distance, float rotation_speed) :
 	position{ _position }, scale{ _scale } {
 	// basically codu de la lab da mai frumix
 	const unsigned int precision = 48;
@@ -60,18 +60,20 @@ Planet::Planet(const glm::vec3& _position, const glm::vec3& _scale, const char* 
 
 	// dam un-bind la VAO, ca sa nu ramana activ daca nu trebe
 	glBindVertexArray(0);
+
+	GLuint textureID;
+	textureID = SOIL_load_OGL_texture(texture_path, SOIL_LOAD_AUTO, SOIL_CREATE_NEW_ID, SOIL_FLAG_INVERT_Y);
+	if (textureID == 0)
+		printf("could not find texture file\n");
+	texture = textureID;
+
+	this->distance = distance;
+	this->rotation_speed = rotation_speed;
 }
 
 void Planet::render() const {
 	// dam bind la textura din obiectu asta
 	glBindTexture(GL_TEXTURE_2D, texture);
-
-	if (glewIsSupported("GL_EXT_texture_filter_anisotropic"))
-	{
-		GLfloat anisoSetting = 0.0f;
-		glGetFloatv(GL_MAX_TEXTURE_MAX_ANISOTROPY_EXT, &anisoSetting);
-		glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAX_ANISOTROPY_EXT, anisoSetting);
-	}
 
 	// dam bind la VAO, si el stie deja de unde sa isi ia vertecshii si cum sunt aranjati, ca o tinut minte care ii VBOu, si si EBOu
 	glBindVertexArray(vao);
