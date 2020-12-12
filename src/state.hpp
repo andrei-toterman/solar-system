@@ -27,4 +27,7 @@ struct State {
     float base_radius       = 1.0f;
     float base_orbit_radius = 3.0f;
     float base_speed        = 1.0f;
+
+    bool mouse_pressed{ false };
+    bool mouse_in_settings{ false };
 };

@@ -15,6 +15,8 @@
 #include "state.hpp"
 #include "camera.hpp"
 
+void mouse_button_callback(GLFWwindow* window, int button, int action, int);
+
 void mouse_callback(GLFWwindow* window, double x, double y);
 
 void scroll_callback(GLFWwindow* window, double, double delta_scroll);
@@ -43,6 +45,7 @@ int main() {
         return 1;
     }
 
+    glfwSetMouseButtonCallback(window, mouse_button_callback);
     glfwSetCursorPosCallback(window, mouse_callback);
     glfwSetScrollCallback(window, scroll_callback);
     glfwSetKeyCallback(window, key_callback);
@@ -109,6 +112,7 @@ int main() {
 
         // settings window
         ImGui::Begin("settings");
+        state.mouse_in_settings = ImGui::GetIO().WantCaptureMouse;
         ImGui::SliderFloat("speed", &state.base_speed, 0.0f, 2.0f);
         ImGui::End();
 
@@ -128,11 +132,28 @@ int main() {
     return 0;
 }
 
+void mouse_button_callback(GLFWwindow* window, int button, int action, int) {
+    auto state = (State*) glfwGetWindowUserPointer(window);
+    if (button == GLFW_MOUSE_BUTTON_LEFT) {
+        if (!state->mouse_in_settings) {
+            if (action == GLFW_PRESS) {
+                state->mouse_pressed = true;
+                glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+            } else {
+                state->mouse_pressed = false;
+                glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+            }
+        }
+    }
+}
+
 void mouse_callback(GLFWwindow* window, double x, double y) {
     auto state = (State*) glfwGetWindowUserPointer(window);
 
-    state->delta.mouse_x = (float) (x - state->last_mouse_x);
-    state->delta.mouse_y = (float) (state->last_mouse_y - y);
+    if (state->mouse_pressed && !state->mouse_in_settings) {
+        state->delta.mouse_x = (float) (x - state->last_mouse_x);
+        state->delta.mouse_y = (float) (state->last_mouse_y - y);
+    }
 
     state->last_mouse_x = x;
     state->last_mouse_y = y;
