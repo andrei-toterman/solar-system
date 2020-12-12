@@ -6,7 +6,6 @@
 
 #include <fstream>
 
-// asta ii un shader intreg compilat si linkuit. are si fragment si vertex shader
 struct Shader {
     GLuint id;
 
@@ -16,7 +15,5 @@ struct Shader {
 
     static GLuint compile_shader(const char* path, GLenum type);
 
-    // cu functii de astea o sa setam variabilele uniforme. acuma setam numa matricea aia Model View Projection
-    // cand mai bagam uniforme in shadere, mai adaugam aici functii de astea
     void set_mvp(const glm::mat4& mvp) const;
 };

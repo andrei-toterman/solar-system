@@ -6,7 +6,6 @@
 const unsigned int WIDTH  = 1280;
 const unsigned int HEIGHT = 720;
 
-// aici tinem toate chestiile care se schimba de-a lungu programului. is toate la un loc ca sa poata fi pasate usor dintr-un loc in altu
 struct State {
     struct Delta {
         float time{ 0.0f };
