@@ -1,9 +1,17 @@
 #include "planet.hpp"
 #include <glm/gtc/constants.hpp>
+#include <glm/gtx/rotate_vector.hpp>
 
-Planet::Planet(const glm::vec3& _position, float _scale, float _distance, float _rotation_speed,
-               const char* texture_path) :
-        position{ _position }, scale{ _scale }, distance{ _distance }, rotation_speed{ _rotation_speed } {
+Planet::Planet(const char* texture_path) :
+        texture{ SOIL_load_OGL_texture(texture_path, SOIL_LOAD_AUTO, SOIL_CREATE_NEW_ID, SOIL_FLAG_MIPMAPS) } {
+    glBindTexture(GL_TEXTURE_2D, texture);
+    if (glewIsSupported("GL_EXT_texture_filter_anisotropic")) {
+        GLfloat anisotropy;
+        glGetFloatv(GL_MAX_TEXTURE_MAX_ANISOTROPY_EXT, &anisotropy);
+        glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAX_ANISOTROPY_EXT, anisotropy);
+    }
+    glBindTexture(GL_TEXTURE_2D, 0);
+
     // basically codu de la lab da mai frumix
     const unsigned int precision = 48;
     vertices.reserve((precision + 1) * (precision + 1));
@@ -65,8 +73,40 @@ Planet::Planet(const glm::vec3& _position, float _scale, float _distance, float 
 
     // dam un-bind la VAO, ca sa nu ramana activ daca nu trebe
     glBindVertexArray(0);
+}
 
-    texture = SOIL_load_OGL_texture(texture_path, SOIL_LOAD_AUTO, SOIL_CREATE_NEW_ID, 0);
+Planet::Planet(const char* texture_path, glm::vec3 _position, float _radius, float _rotation_speed,
+               glm::vec3 _rotation_axis) : Planet{ texture_path } {
+    position       = _position;
+    radius         = _radius;
+    rotation_speed = _rotation_speed;
+    rotation_axis  = _rotation_axis;
+}
+
+Planet::Planet(Planet& _parent, const char* texture_path, float _orbit_radius, float _radius, float _rotation_speed,
+               glm::vec3 _rotation_axis, float _orbit_speed, glm::vec3 _orbit_axis) : Planet{ texture_path } {
+    parent         = &_parent;
+    position       = { _orbit_radius, 0.0f, 0.0f };
+    radius         = _radius;
+    rotation_speed = _rotation_speed;
+    rotation_axis  = _rotation_axis;
+    orbit_speed    = _orbit_speed;
+    orbit_axis     = _orbit_axis;
+}
+
+glm::vec3 Planet::absolute_position(float base_orbit_radius) {
+    if (parent) {
+        return glm::rotate(position * base_orbit_radius, orbit_angle, orbit_axis) +
+               parent->absolute_position(base_orbit_radius);
+    }
+    return position;
+}
+
+void Planet::update(float time) {
+    rotation_angle = rotation_speed * time;
+    if (parent) {
+        orbit_angle = orbit_speed * time;
+    }
 }
 
 void Planet::render() const {
@@ -78,4 +118,6 @@ void Planet::render() const {
     glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, nullptr);
     // dam unbind la VAO
     glBindVertexArray(0);
+    // dam unbind la textura
+    glBindTexture(GL_TEXTURE_2D, 0);
 }

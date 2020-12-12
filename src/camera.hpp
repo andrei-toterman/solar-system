@@ -17,7 +17,7 @@ struct Camera {
     float ox_angle{};
 
     // viteza si zoom
-    float movement_speed{ 10.0f };
+    float movement_speed{ 50.0f };
     float mouse_sensitivity{ 0.3f };
     float fov{ 45.0f };
 
