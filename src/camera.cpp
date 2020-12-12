@@ -9,8 +9,8 @@ glm::mat4 Camera::view_matrix() const {
     return glm::lookAt(position, position + front, up);
 }
 
-void Camera::update(const std::array<bool, State::keys_n>& held_keys, State::Delta& delta) {
-    move(delta.time, held_keys);
+void Camera::update(const std::array<bool, State::movement_n>& movement, State::Delta& delta) {
+    move(delta.time, movement);
     look(delta.mouse_x, delta.mouse_y);
     zoom(delta.mouse_scroll);
     delta.mouse_x      = 0.0f;
@@ -18,12 +18,12 @@ void Camera::update(const std::array<bool, State::keys_n>& held_keys, State::Del
     delta.mouse_scroll = 0.0f;
 }
 
-void Camera::move(float delta_time, const std::array<bool, State::keys_n>& held_keys) {
-    float velocity = movement_speed * delta_time;
-    position += (float) held_keys[State::W] * velocity * front;
-    position -= (float) held_keys[State::A] * velocity * right;
-    position -= (float) held_keys[State::S] * velocity * front;
-    position += (float) held_keys[State::D] * velocity * right;
+void Camera::move(float delta_time, const std::array<bool, State::movement_n>& movement) {
+    float velocity = (movement[State::SLOW] ? slow_movement_speed : movement_speed) * delta_time;
+    position += (float) movement[State::FORWARD] * velocity * front;
+    position -= (float) movement[State::LEFT] * velocity * right;
+    position -= (float) movement[State::BACKWARD] * velocity * front;
+    position += (float) movement[State::RIGHT] * velocity * right;
 }
 
 void Camera::look(float delta_x, float delta_y) {

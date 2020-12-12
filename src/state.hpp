@@ -18,11 +18,11 @@ struct State {
     double last_mouse_x{ WIDTH / 2.0 };
     double last_mouse_y{ HEIGHT / 2.0 };
 
-    enum Keys {
-        W, A, S, D, keys_n
+    enum {
+        FORWARD, LEFT, BACKWARD, RIGHT, SLOW, movement_n
     };
 
-    std::array<bool, keys_n> held_keys{};
+    std::array<bool, movement_n> camera_movement{};
 
     float base_radius       = 1.0f;
     float base_orbit_radius = 3.0f;

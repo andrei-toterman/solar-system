@@ -15,6 +15,7 @@ struct Camera {
     float ox_angle{};
 
     float movement_speed{ 50.0f };
+    float slow_movement_speed{ 10.0f };
     float mouse_sensitivity{ 0.3f };
     float fov{ 45.0f };
 
@@ -22,9 +23,9 @@ struct Camera {
 
     [[nodiscard]] glm::mat4 view_matrix() const;
 
-    void update(const std::array<bool, State::keys_n>& held_keys, State::Delta& delta);
+    void update(const std::array<bool, State::movement_n>& movement, State::Delta& delta);
 
-    void move(float delta_time, const std::array<bool, State::keys_n>& held_keys);
+    void move(float delta_time, const std::array<bool, State::movement_n>& movement);
 
     void look(float delta_x, float delta_y);
 

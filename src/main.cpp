@@ -90,7 +90,7 @@ int main() {
         glClearColor(0.5f, 0.5f, 0.5f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-        camera.update(state.held_keys, state.delta);
+        camera.update(state.camera_movement, state.delta);
         glm::mat4 proj{ glm::perspective(glm::radians(camera.fov), (float) WIDTH / HEIGHT, 0.1f, 10000.0f) };
         glm::mat4 view{ camera.view_matrix() };
 
@@ -167,30 +167,26 @@ void scroll_callback(GLFWwindow* window, double, double delta_scroll) {
 void key_callback(GLFWwindow* window, int key, int, int action, int) {
     auto state = (State*) glfwGetWindowUserPointer(window);
 
-    if (action == GLFW_PRESS) {
-        switch (key) {
-            case GLFW_KEY_ESCAPE: glfwSetWindowShouldClose(window, true);
-                break;
-            case GLFW_KEY_W: state->held_keys[State::W] = true;
-                break;
-            case GLFW_KEY_A: state->held_keys[State::A] = true;
-                break;
-            case GLFW_KEY_S: state->held_keys[State::S] = true;
-                break;
-            case GLFW_KEY_D: state->held_keys[State::D] = true;
-                break;
-            default: break;
-        }
+    if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS) {
+        glfwSetWindowShouldClose(window, true);
     }
-    if (action == GLFW_RELEASE) {
+    if (action == GLFW_PRESS || action == GLFW_RELEASE) {
+        bool pressed = action == GLFW_PRESS;
         switch (key) {
-            case GLFW_KEY_W: state->held_keys[State::W] = false;
+            case GLFW_KEY_UP:
+            case GLFW_KEY_W: state->camera_movement[State::FORWARD] = pressed;
                 break;
-            case GLFW_KEY_A: state->held_keys[State::A] = false;
+            case GLFW_KEY_LEFT:
+            case GLFW_KEY_A: state->camera_movement[State::LEFT] = pressed;
                 break;
-            case GLFW_KEY_S: state->held_keys[State::S] = false;
+            case GLFW_KEY_DOWN:
+            case GLFW_KEY_S: state->camera_movement[State::BACKWARD] = pressed;
                 break;
-            case GLFW_KEY_D: state->held_keys[State::D] = false;
+            case GLFW_KEY_RIGHT:
+            case GLFW_KEY_D: state->camera_movement[State::RIGHT] = pressed;
+                break;
+            case GLFW_KEY_RIGHT_SHIFT:
+            case GLFW_KEY_LEFT_SHIFT: state->camera_movement[State::SLOW] = pressed;
                 break;
             default: break;
         }
