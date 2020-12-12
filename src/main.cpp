@@ -1,3 +1,7 @@
+#include "imgui.h"
+#include "imgui_impl_glfw.h"
+#include "imgui_impl_opengl3.h"
+
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
 
@@ -42,7 +46,11 @@ int main() {
     glfwSetCursorPosCallback(window, mouse_callback);
     glfwSetScrollCallback(window, scroll_callback);
     glfwSetKeyCallback(window, key_callback);
-    glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+
+    ImGui::CreateContext();
+    ImGui::StyleColorsDark();
+    ImGui_ImplGlfw_InitForOpenGL(window, true);
+    ImGui_ImplOpenGL3_Init("#version 330");
 
     State  state{};
     Camera camera{{ 0.0f, 0.0f, 0.0f }};
@@ -84,7 +92,7 @@ int main() {
         glm::mat4 view{ camera.view_matrix() };
 
         for (const auto object : objects) {
-            object->update(state.last_time * state.base_speed);
+            object->update(state.delta.time, state.base_speed);
         }
         for (const auto object : objects) {
             glm::mat4 model{ 1.0f };
@@ -95,10 +103,27 @@ int main() {
             object->render();
         }
 
+        ImGui_ImplOpenGL3_NewFrame();
+        ImGui_ImplGlfw_NewFrame();
+        ImGui::NewFrame();
+
+        // settings window
+        ImGui::Begin("settings");
+        ImGui::SliderFloat("speed", &state.base_speed, 0.0f, 2.0f);
+        ImGui::End();
+
+        ImGui::Render();
+        ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+
         glfwSwapBuffers(window);
         glfwPollEvents();
     }
 
+    ImGui_ImplOpenGL3_Shutdown();
+    ImGui_ImplGlfw_Shutdown();
+    ImGui::DestroyContext();
+
+    glfwDestroyWindow(window);
     glfwTerminate();
     return 0;
 }

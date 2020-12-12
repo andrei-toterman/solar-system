@@ -92,10 +92,10 @@ glm::vec3 Planet::absolute_position(float base_orbit_radius) const {
     return position;
 }
 
-void Planet::update(float time) {
-    rotation_angle = rotation_speed * time;
+void Planet::update(float delta_time, float base_speed) {
+    rotation_angle += base_speed * rotation_speed * delta_time;
     if (parent) {
-        orbit_angle = orbit_speed * time;
+        orbit_angle += base_speed * orbit_speed * delta_time;
     }
 }
 
