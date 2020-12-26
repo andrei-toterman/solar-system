@@ -76,7 +76,7 @@ int main() {
     Planet uranus{ sun, "res/uranus.jpg", 287.1f, 2.53f, 14.79f, UP, 0.68f };
     Planet neptune{ sun, "res/neptune.jpg", 449.5, 2.46f, 9.71f, UP, 0.54f };
 
-    Planet *objects[] = { &sun, & mercury, & venus, & earth, & moon, & mars, & jupiter, & saturn, & uranus, & neptune };
+    Planet* objects[]{ &sun, &mercury, &venus, &earth, &moon, &mars, &jupiter, &saturn, &uranus, &neptune };
 
     Shader shader{ "shaders/vertex.glsl", "shaders/fragment.glsl" };
     glUseProgram(shader.id);
