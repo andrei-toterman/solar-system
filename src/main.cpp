@@ -76,7 +76,7 @@ int main() {
     Planet uranus{ sun, "res/uranus.jpg", 287.1f, 2.53f, 14.79f, UP, 0.68f };
     Planet neptune{ sun, "res/neptune.jpg", 449.5, 2.46f, 9.71f, UP, 0.54f };
 
-    std::array objects{ &sun, &mercury, &venus, &earth, &moon, &mars, &jupiter, &saturn, &uranus, &neptune };
+    Planet *objects[] = { &sun, & mercury, & venus, & earth, & moon, & mars, & jupiter, & saturn, & uranus, & neptune };
 
     Shader shader{ "shaders/vertex.glsl", "shaders/fragment.glsl" };
     glUseProgram(shader.id);
@@ -114,6 +114,8 @@ int main() {
         ImGui::Begin("settings");
         state.mouse_in_settings = ImGui::GetIO().WantCaptureMouse;
         ImGui::SliderFloat("speed", &state.base_speed, 0.0f, 2.0f);
+        ImGui::SliderFloat("radius", &state.base_radius, 0.0f, 2.0f);
+        ImGui::SliderFloat("distance", &state.base_orbit_radius, 1.0f, 5.0f);
         ImGui::End();
 
         ImGui::Render();
