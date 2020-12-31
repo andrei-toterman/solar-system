@@ -1,4 +1,4 @@
-#include "imgui.h"
+﻿#include "imgui.h"
 #include "imgui_impl_glfw.h"
 #include "imgui_impl_opengl3.h"
 
@@ -14,6 +14,9 @@
 #include "shader.hpp"
 #include "state.hpp"
 #include "camera.hpp"
+#include "utils.h"
+
+using namespace std;
 
 void mouse_button_callback(GLFWwindow* window, int button, int action, int);
 
@@ -22,6 +25,35 @@ void mouse_callback(GLFWwindow* window, double x, double y);
 void scroll_callback(GLFWwindow* window, double, double delta_scroll);
 
 void key_callback(GLFWwindow* window, int key, int, int action, int);
+
+glm::mat4 pMat, vMat, mMat, mvMat, tMat, rMat, mvInvTrMat;
+GLuint mvLoc, projLoc, nLoc;
+
+/*
+ * GLOBAL - LIGHT (iluminație globală de ambient)
+ */
+float globalAmbient[4] = { 0.7f, 0.7f, 0.7f, 1.0f };
+GLuint globalAmbientLoc, isSunLoc;
+/*
+ * SPOT - LIGHT (lumină de poziție)
+ */
+float lightPosition[3], isSun[3];
+glm::vec3 lightPositionVec3, vlightPositionVec3;
+GLuint lightPositionLoc;
+// lumină albă:
+float lightAmbient[4] = { 0.0f, 0.0f, 0.0f, 1.0f };
+float lightDiffuse[4] = { 1.0f, 1.0f, 1.0f, 1.0f };
+float lightSpecular[4] = { 1.0f, 1.0f, 1.0f, 1.0f };
+GLuint lightAmbientLoc, lightDiffuseLoc, lightSpecularLoc;
+/*
+ * MATERIAL - LIGHT (proprietăți de lumină ale materialului)
+ */
+float* materialAmbient = Utils::goldAmbient();
+float* materialDiffuse = Utils::goldDiffuse();
+float* materialSpecular = Utils::goldSpecular();
+float materialShininess = Utils::goldShininess();
+GLuint materialAmbientLoc, materialDiffuseLoc, materialSpecularLoc, materialShininessLoc;
+
 
 int main() {
     if (!glfwInit()) {
@@ -44,6 +76,7 @@ int main() {
         std::cerr << "failed to initialize GLEW" << std::endl;
         return 1;
     }
+
 
     glfwSetMouseButtonCallback(window, mouse_button_callback);
     glfwSetCursorPosCallback(window, mouse_callback);
@@ -76,23 +109,87 @@ int main() {
     Planet uranus{ sun, "res/uranus.jpg", 287.1f, 2.53f, 14.79f, UP, 0.68f };
     Planet neptune{ sun, "res/neptune.jpg", 449.5, 2.46f, 9.71f, UP, 0.54f };
 
-    std::array objects{ &sun, &mercury, &venus, &earth, &moon, &mars, &jupiter, &saturn, &uranus, &neptune };
+    std::array<Planet*,10> objects{&sun, &mercury, &venus, &earth, &moon, &mars, &jupiter, &saturn, &uranus, &neptune };
 
     Shader shader{ "shaders/vertex.glsl", "shaders/fragment.glsl" };
     glUseProgram(shader.id);
-
+    
     glEnable(GL_DEPTH_TEST);
     while (!glfwWindowShouldClose(window)) {
         auto time = (float) glfwGetTime();
         state.delta.time = time - state.last_time;
         state.last_time  = time;
 
-        glClearColor(0.5f, 0.5f, 0.5f, 1.0f);
+        glClearColor(0, 0, 0, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
         camera.update(state.camera_movement, state.delta);
         glm::mat4 proj{ glm::perspective(glm::radians(camera.fov), (float) WIDTH / HEIGHT, 0.1f, 10000.0f) };
         glm::mat4 view{ camera.view_matrix() };
+
+        //light
+
+
+        // matricile de view
+        vMat = view;
+        // matricea de model
+        mMat = glm::translate(glm::mat4(1.0f), sun.position);
+        // matricea de model-view
+        mvMat = vMat * mMat;
+        // matricea pentru transformarea vectorilor normali = invers-transpusa matricei model-view
+        mvInvTrMat = glm::transpose(glm::inverse(mvMat));
+        
+        lightPositionVec3 = glm::vec3(0.0f, 3.0f, 0.0f);
+        mvLoc = glGetUniformLocation(shader.id, "mv_matrix");
+        projLoc = glGetUniformLocation(shader.id, "proj_matrix");
+        nLoc = glGetUniformLocation(shader.id, "norm_matrix");
+
+        glUniformMatrix4fv(mvLoc, 1, GL_FALSE, glm::value_ptr(mvMat));
+        glUniformMatrix4fv(projLoc, 1, GL_FALSE, glm::value_ptr(pMat));
+        glUniformMatrix4fv(nLoc, 1, GL_FALSE, glm::value_ptr(mvInvTrMat));
+        /*
+     * Preia locația variabilelor din șhader
+     */
+     // Ambient
+        globalAmbientLoc = glGetUniformLocation(shader.id, "globalAmbient");
+        // Lumină de poziție
+        lightPositionLoc = glGetUniformLocation(shader.id, "PL_position");
+        lightAmbientLoc = glGetUniformLocation(shader.id, "PL_ambient");
+        lightDiffuseLoc = glGetUniformLocation(shader.id, "PL_diffuse");
+        lightSpecularLoc = glGetUniformLocation(shader.id, "PL_specular");
+        // Lumina materialului
+        materialAmbientLoc = glGetUniformLocation(shader.id, "M_ambient");
+        materialDiffuseLoc = glGetUniformLocation(shader.id, "M_diffuse");
+        materialSpecularLoc = glGetUniformLocation(shader.id, "M_specular");
+        materialShininessLoc = glGetUniformLocation(shader.id, "M_shininess");
+
+
+        isSunLoc = glGetUniformLocation(shader.id, "isSun");
+        /*
+         * setează variabilele din șhader
+         */
+        glProgramUniform4fv(shader.id, globalAmbientLoc, 1, globalAmbient);
+
+        vlightPositionVec3 = glm::vec3(vMat * glm::vec4(lightPositionVec3, 1.0));
+        lightPosition[0] = vlightPositionVec3.x;
+        lightPosition[1] = vlightPositionVec3.y;
+        lightPosition[2] = vlightPositionVec3.z;
+        glProgramUniform3fv(shader.id, lightPositionLoc, 1, lightPosition);
+        glProgramUniform4fv(shader.id, lightAmbientLoc, 1, lightAmbient);
+        glProgramUniform4fv(shader.id, lightDiffuseLoc, 1, lightDiffuse);
+        glProgramUniform4fv(shader.id, lightSpecularLoc, 1, lightSpecular);
+
+        glProgramUniform4fv(shader.id, materialAmbientLoc, 1, materialAmbient);
+        glProgramUniform4fv(shader.id, materialDiffuseLoc, 1, materialDiffuse);
+        glProgramUniform4fv(shader.id, materialSpecularLoc, 1, materialSpecular);
+        glProgramUniform1f(shader.id, materialShininessLoc, materialShininess);
+
+
+
+        // /light
+
+
+
 
         for (const auto object : objects) {
             object->update(state.delta.time, state.base_speed);
@@ -103,6 +200,14 @@ int main() {
             model = glm::rotate(model, object->rotation_angle, object->rotation_axis);
             model = glm::scale(model, glm::vec3{ object->radius * state.base_radius });
             shader.set_mvp(proj * view * model);
+            if (object->radius == 69.5f * 0.2f) {
+                isSun[0] = 1.0f;
+                glProgramUniform3fv(shader.id, isSunLoc, 1, isSun);
+            }
+            else {
+                isSun[0] = 0;
+                glProgramUniform3fv(shader.id, isSunLoc, 1, isSun);
+            }
             object->render();
         }
 
@@ -122,7 +227,6 @@ int main() {
         glfwSwapBuffers(window);
         glfwPollEvents();
     }
-
     ImGui_ImplOpenGL3_Shutdown();
     ImGui_ImplGlfw_Shutdown();
     ImGui::DestroyContext();
@@ -131,6 +235,8 @@ int main() {
     glfwTerminate();
     return 0;
 }
+
+
 
 void mouse_button_callback(GLFWwindow* window, int button, int action, int) {
     auto state = (State*) glfwGetWindowUserPointer(window);
