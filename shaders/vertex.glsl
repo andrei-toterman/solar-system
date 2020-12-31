@@ -26,6 +26,7 @@ uniform float M_shininess;
 //ambient
 out vec4 varyingColor;
 
+uniform vec3 lightPosition;
 
 void main() {
     gl_Position = mvp * vec4(position, 1.0);
@@ -34,17 +35,15 @@ void main() {
     if(isSun[0]==0)
     {   
         vec3 ambient = ((globalAmbient * M_ambient) + (PL_ambient * M_ambient)).xyz;
-        varyingColor = vec4(ambient, 1.0);
+        vec4 P = mv_matrix * vec4(position,1.0);
+        vec3 N = normalize((norm_matrix * vec4(normal_coords,1.0)).xyz);
+        vec3 L = normalize(PL_position - P.xyz);
+        vec3 diffuse = PL_diffuse.xyz * M_diffuse.xyz * max(dot(N,L), 0.0);
+        varyingColor = vec4((ambient + diffuse), 1.0);
+        
     }
     else{
-    varyingColor = vec4(-1,-1,-1,-1);
-    /*
-    vec3 ambient = ((globalAmbient * M_ambient) + (PL_ambient * M_ambient)).xyz;
-    vec4 P = mv_matrix * vec4(position,1.0);
-    vec3 N = normalize((norm_matrix * vec4(normal_coords,1.0)).xyz);
-    vec3 L = normalize(PL_position - P.xyz);
-    vec3 diffuse = PL_diffuse.xyz * M_diffuse.xyz * max(dot(N,L), 0.0);
-    varyingColor = vec4((ambient + diffuse), 1.0);
-    */
+        varyingColor = vec4(-1,-1,-1,-1);
     }
+    
 }

@@ -55,6 +55,51 @@ float materialShininess = Utils::goldShininess();
 GLuint materialAmbientLoc, materialDiffuseLoc, materialSpecularLoc, materialShininessLoc;
 
 
+
+void setupLight(Shader s)
+{
+    /*
+     * Preia locația variabilelor din șhader
+     */
+     // Ambient
+    globalAmbientLoc = glGetUniformLocation(s.id, "globalAmbient");
+    // Lumină de poziție
+    lightPositionLoc = glGetUniformLocation(s.id, "PL_position");
+    lightAmbientLoc = glGetUniformLocation(s.id, "PL_ambient");
+    lightDiffuseLoc = glGetUniformLocation(s.id, "PL_diffuse");
+    lightSpecularLoc = glGetUniformLocation(s.id, "PL_specular");
+    // Lumina materialului
+    materialAmbientLoc = glGetUniformLocation(s.id, "M_ambient");
+    materialDiffuseLoc = glGetUniformLocation(s.id, "M_diffuse");
+    materialSpecularLoc = glGetUniformLocation(s.id, "M_specular");
+    materialShininessLoc = glGetUniformLocation(s.id, "M_shininess");
+
+    /*
+     * setează variabilele din șhader
+     */
+    glProgramUniform4fv(s.id, globalAmbientLoc, 1, globalAmbient);
+
+    vlightPositionVec3 = glm::vec3(vMat * glm::vec4(lightPositionVec3, 1.0));
+    lightPosition[0] = vlightPositionVec3.x;
+    lightPosition[1] = vlightPositionVec3.y;
+    lightPosition[2] = vlightPositionVec3.z;
+    glProgramUniform3fv(s.id, lightPositionLoc, 1, lightPosition);
+    glProgramUniform4fv(s.id, lightAmbientLoc, 1, lightAmbient);
+    glProgramUniform4fv(s.id, lightDiffuseLoc, 1, lightDiffuse);
+    glProgramUniform4fv(s.id, lightSpecularLoc, 1, lightSpecular);
+
+    glProgramUniform4fv(s.id, materialAmbientLoc, 1, materialAmbient);
+    glProgramUniform4fv(s.id, materialDiffuseLoc, 1, materialDiffuse);
+    glProgramUniform4fv(s.id, materialSpecularLoc, 1, materialSpecular);
+    glProgramUniform1f(s.id, materialShininessLoc, materialShininess);
+
+    isSunLoc = glGetUniformLocation(s.id, "isSun");
+}
+
+
+
+
+
 int main() {
     if (!glfwInit()) {
         std::cerr << "failed to initialize GLFW" << std::endl;
@@ -112,8 +157,20 @@ int main() {
     std::array<Planet*,10> objects{&sun, &mercury, &venus, &earth, &moon, &mars, &jupiter, &saturn, &uranus, &neptune };
 
     Shader shader{ "shaders/vertex.glsl", "shaders/fragment.glsl" };
+
+
+
+    mvLoc = glGetUniformLocation(shader.id, "mv_matrix");
+    projLoc = glGetUniformLocation(shader.id, "proj_matrix");
+    nLoc = glGetUniformLocation(shader.id, "norm_matrix");
+
     glUseProgram(shader.id);
-    
+
+
+    lightPositionVec3 = glm::vec3(0, 0, 0);
+
+    setupLight(shader);
+
     glEnable(GL_DEPTH_TEST);
     while (!glfwWindowShouldClose(window)) {
         auto time = (float) glfwGetTime();
@@ -126,70 +183,6 @@ int main() {
         camera.update(state.camera_movement, state.delta);
         glm::mat4 proj{ glm::perspective(glm::radians(camera.fov), (float) WIDTH / HEIGHT, 0.1f, 10000.0f) };
         glm::mat4 view{ camera.view_matrix() };
-
-        //light
-
-
-        // matricile de view
-        vMat = view;
-        // matricea de model
-        mMat = glm::translate(glm::mat4(1.0f), sun.position);
-        // matricea de model-view
-        mvMat = vMat * mMat;
-        // matricea pentru transformarea vectorilor normali = invers-transpusa matricei model-view
-        mvInvTrMat = glm::transpose(glm::inverse(mvMat));
-        
-        lightPositionVec3 = glm::vec3(0.0f, 3.0f, 0.0f);
-        mvLoc = glGetUniformLocation(shader.id, "mv_matrix");
-        projLoc = glGetUniformLocation(shader.id, "proj_matrix");
-        nLoc = glGetUniformLocation(shader.id, "norm_matrix");
-
-        glUniformMatrix4fv(mvLoc, 1, GL_FALSE, glm::value_ptr(mvMat));
-        glUniformMatrix4fv(projLoc, 1, GL_FALSE, glm::value_ptr(pMat));
-        glUniformMatrix4fv(nLoc, 1, GL_FALSE, glm::value_ptr(mvInvTrMat));
-        /*
-     * Preia locația variabilelor din șhader
-     */
-     // Ambient
-        globalAmbientLoc = glGetUniformLocation(shader.id, "globalAmbient");
-        // Lumină de poziție
-        lightPositionLoc = glGetUniformLocation(shader.id, "PL_position");
-        lightAmbientLoc = glGetUniformLocation(shader.id, "PL_ambient");
-        lightDiffuseLoc = glGetUniformLocation(shader.id, "PL_diffuse");
-        lightSpecularLoc = glGetUniformLocation(shader.id, "PL_specular");
-        // Lumina materialului
-        materialAmbientLoc = glGetUniformLocation(shader.id, "M_ambient");
-        materialDiffuseLoc = glGetUniformLocation(shader.id, "M_diffuse");
-        materialSpecularLoc = glGetUniformLocation(shader.id, "M_specular");
-        materialShininessLoc = glGetUniformLocation(shader.id, "M_shininess");
-
-
-        isSunLoc = glGetUniformLocation(shader.id, "isSun");
-        /*
-         * setează variabilele din șhader
-         */
-        glProgramUniform4fv(shader.id, globalAmbientLoc, 1, globalAmbient);
-
-        vlightPositionVec3 = glm::vec3(vMat * glm::vec4(lightPositionVec3, 1.0));
-        lightPosition[0] = vlightPositionVec3.x;
-        lightPosition[1] = vlightPositionVec3.y;
-        lightPosition[2] = vlightPositionVec3.z;
-        glProgramUniform3fv(shader.id, lightPositionLoc, 1, lightPosition);
-        glProgramUniform4fv(shader.id, lightAmbientLoc, 1, lightAmbient);
-        glProgramUniform4fv(shader.id, lightDiffuseLoc, 1, lightDiffuse);
-        glProgramUniform4fv(shader.id, lightSpecularLoc, 1, lightSpecular);
-
-        glProgramUniform4fv(shader.id, materialAmbientLoc, 1, materialAmbient);
-        glProgramUniform4fv(shader.id, materialDiffuseLoc, 1, materialDiffuse);
-        glProgramUniform4fv(shader.id, materialSpecularLoc, 1, materialSpecular);
-        glProgramUniform1f(shader.id, materialShininessLoc, materialShininess);
-
-
-
-        // /light
-
-
-
 
         for (const auto object : objects) {
             object->update(state.delta.time, state.base_speed);
@@ -207,6 +200,13 @@ int main() {
             else {
                 isSun[0] = 0;
                 glProgramUniform3fv(shader.id, isSunLoc, 1, isSun);
+                vMat = glm::translate(glm::mat4(1.0f), -sun.position);
+                mvMat = vMat * model;;
+                glUniformMatrix4fv(mvLoc, 1, GL_FALSE, glm::value_ptr(mvMat));
+                glUniformMatrix4fv(projLoc, 1, GL_FALSE, glm::value_ptr(proj));
+                mvInvTrMat = glm::transpose(glm::inverse(mvMat));
+                glUniformMatrix4fv(nLoc, 1, GL_FALSE, glm::value_ptr(mvInvTrMat));
+
             }
             object->render();
         }
