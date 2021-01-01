@@ -6,7 +6,14 @@
 const unsigned int WIDTH  = 1280;
 const unsigned int HEIGHT = 720;
 
+struct Camera;
+
 struct State {
+    const Camera& camera;
+
+    explicit State(const Camera& camera) : camera(camera) {
+    }
+
     struct Delta {
         float time{ 0.0f };
         float mouse_x{ 0.0f };

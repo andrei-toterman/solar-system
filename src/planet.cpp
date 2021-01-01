@@ -1,6 +1,9 @@
 #include "planet.hpp"
 #include <glm/gtc/constants.hpp>
 #include <glm/gtx/rotate_vector.hpp>
+#include <SOIL2.h>
+
+#include "state.hpp"
 
 Planet::Planet(const char* texture_path) :
         texture{ SOIL_load_OGL_texture(texture_path, SOIL_LOAD_AUTO, SOIL_CREATE_NEW_ID, SOIL_FLAG_MIPMAPS) } {
@@ -92,18 +95,18 @@ glm::vec3 Planet::absolute_position(float base_orbit_radius) const {
     return position;
 }
 
-glm::mat4 Planet::model_matrix(float base_radius, float base_orbit_radius) const {
+glm::mat4 Planet::model_matrix(const State& state) const {
     glm::mat4 model{ 1.0f };
-    model = glm::translate(model, absolute_position(base_orbit_radius));
+    model = glm::translate(model, absolute_position(state.base_orbit_radius));
     model = glm::rotate(model, rotation_angle, rotation_axis);
-    model = glm::scale(model, glm::vec3{ radius * base_radius });
+    model = glm::scale(model, glm::vec3{ radius * state.base_radius });
     return model;
 }
 
-void Planet::update(float delta_time, float base_speed) {
-    rotation_angle += base_speed * rotation_speed * delta_time;
+void Planet::update(const State& state) {
+    rotation_angle += state.base_speed * rotation_speed * state.delta.time;
     if (parent) {
-        orbit_angle += base_speed * orbit_speed * delta_time;
+        orbit_angle += state.base_speed * orbit_speed * state.delta.time;
     }
 }
 

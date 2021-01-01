@@ -57,8 +57,8 @@ int main() {
     ImGui_ImplGlfw_InitForOpenGL(window, true);
     ImGui_ImplOpenGL3_Init("#version 330");
 
-    State  state{};
     Camera camera{{ 4.0f, 45.0f, 75.0f }};
+    State  state{ camera };
     glfwSetWindowUserPointer(window, &state);
 
     const glm::vec3 UP{ 0.0f, 1.0f, 0.0f };
@@ -99,7 +99,7 @@ int main() {
         glClearColor(clear_color.r, clear_color.g, clear_color.b, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-        camera.update(state.camera_movement, state.delta);
+        camera.update(state);
         glm::mat4 proj{ glm::perspective(glm::radians(camera.fov), (float) WIDTH / HEIGHT, 0.1f, 10000.0f) };
         glm::mat4 view{ camera.view_matrix() };
 
@@ -112,11 +112,11 @@ int main() {
 
 
         for (const auto object : objects) {
-            object->update(state.delta.time, state.base_speed);
+            object->update(state);
         }
 
         for (const auto object : objects) {
-            auto mv = view * object->model_matrix(state.base_radius, state.base_orbit_radius);
+            auto mv = view * object->model_matrix(state);
             if (object != &sun) {
                 glUseProgram(phong_shader.id);
                 phong_shader.set_mv(mv);

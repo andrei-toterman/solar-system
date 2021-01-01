@@ -23,7 +23,7 @@ struct Camera {
 
     [[nodiscard]] glm::mat4 view_matrix() const;
 
-    void update(const std::array<bool, State::movement_n>& movement, State::Delta& delta);
+    void update(State& state);
 
     void move(float delta_time, const std::array<bool, State::movement_n>& movement);
 

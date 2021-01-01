@@ -9,13 +9,13 @@ glm::mat4 Camera::view_matrix() const {
     return glm::lookAt(position, position + front, up);
 }
 
-void Camera::update(const std::array<bool, State::movement_n>& movement, State::Delta& delta) {
-    move(delta.time, movement);
-    look(delta.mouse_x, delta.mouse_y);
-    zoom(delta.mouse_scroll);
-    delta.mouse_x      = 0.0f;
-    delta.mouse_y      = 0.0f;
-    delta.mouse_scroll = 0.0f;
+void Camera::update(State& state) {
+    move(state.delta.time, state.camera_movement);
+    look(state.delta.mouse_x, state.delta.mouse_y);
+    zoom(state.delta.mouse_scroll);
+    state.delta.mouse_x      = 0.0f;
+    state.delta.mouse_y      = 0.0f;
+    state.delta.mouse_scroll = 0.0f;
 }
 
 void Camera::move(float delta_time, const std::array<bool, State::movement_n>& movement) {

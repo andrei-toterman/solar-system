@@ -4,7 +4,7 @@
 
 #include <vector>
 #include "vertex.hpp"
-#include "SOIL2.h"
+#include "state.hpp"
 
 struct Planet {
     Planet(const char* texture_path, glm::vec3 _position, float _radius, float _rotation_speed,
@@ -17,9 +17,9 @@ struct Planet {
 
     [[nodiscard]] glm::vec3 absolute_position(float base_orbit_radius) const;
 
-    [[nodiscard]] glm::mat4 model_matrix(float base_radius, float base_orbit_radius) const;
+    [[nodiscard]] glm::mat4 model_matrix(const State& state) const;
 
-    void update(float delta_time, float base_speed);
+    void update(const State& state);
 
     void render() const;
 
