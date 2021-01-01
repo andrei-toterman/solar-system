@@ -78,7 +78,7 @@ int main() {
     Planet uranus{ sun, "res/uranus.jpg", 287.1f, 2.53f, 14.79f, UP, 0.68f };
     Planet neptune{ sun, "res/neptune.jpg", 449.5, 2.46f, 9.71f, UP, 0.54f };
 
-    Planet* objects[]{ &sun, &mercury, &venus, &earth, &moon, &mars, &jupiter, &saturn, &uranus, &neptune };
+    RenderObject* objects[]{ &sun, &mercury, &venus, &earth, &moon, &mars, &jupiter, &saturn, &uranus, &neptune };
 
     glm::vec3 clear_color{ 0.0f, 0.0f, 0.0f };
     glm::vec3 global_ambient{ 0.12f, 0.18f, 0.3f };

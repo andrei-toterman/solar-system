@@ -5,8 +5,9 @@
 #include <vector>
 #include "vertex.hpp"
 #include "state.hpp"
+#include "render_object.hpp"
 
-struct Planet {
+struct Planet : RenderObject {
     Planet(const char* texture_path, glm::vec3 _position, float _radius, float _rotation_speed,
            glm::vec3 _rotation_axis);
 
@@ -17,16 +18,11 @@ struct Planet {
 
     [[nodiscard]] glm::vec3 absolute_position(float base_orbit_radius) const;
 
-    [[nodiscard]] glm::mat4 model_matrix(const State& state) const;
+    [[nodiscard]] glm::mat4 model_matrix(const State& state) const override;
 
-    void update(const State& state);
+    void update(const State& state) override;
 
-    void render() const;
-
-    std::vector<Vertex> vertices;
-    std::vector<GLuint> indices;
-    GLuint              texture{};
-    GLuint              vao{}, vbo{}, ebo{};
+    void render() const override;
 
     Planet* parent{};
 

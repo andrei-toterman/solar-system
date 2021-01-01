@@ -1,20 +1,10 @@
 #include "planet.hpp"
 #include <glm/gtc/constants.hpp>
 #include <glm/gtx/rotate_vector.hpp>
-#include <SOIL2.h>
 
 #include "state.hpp"
 
-Planet::Planet(const char* texture_path) :
-        texture{ SOIL_load_OGL_texture(texture_path, SOIL_LOAD_AUTO, SOIL_CREATE_NEW_ID, SOIL_FLAG_MIPMAPS) } {
-    glBindTexture(GL_TEXTURE_2D, texture);
-    if (glewIsSupported("GL_EXT_texture_filter_anisotropic")) {
-        GLfloat anisotropy;
-        glGetFloatv(GL_MAX_TEXTURE_MAX_ANISOTROPY_EXT, &anisotropy);
-        glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAX_ANISOTROPY_EXT, anisotropy);
-    }
-    glBindTexture(GL_TEXTURE_2D, 0);
-
+Planet::Planet(const char* texture_path) : RenderObject{ texture_path } {
     const unsigned int precision = 48;
     vertices.reserve((precision + 1) * (precision + 1));
     indices.reserve(precision * precision * 6);
@@ -44,28 +34,7 @@ Planet::Planet(const char* texture_path) :
             indices.push_back((i + 1) * (precision + 1) + j);
         }
     }
-
-    glGenVertexArrays(1, &vao);
-    glGenBuffers(1, &vbo);
-    glGenBuffers(1, &ebo);
-
-    glBindVertexArray(vao);
-    glBindBuffer(GL_ARRAY_BUFFER, vbo);
-    glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(Vertex), vertices.data(), GL_STATIC_DRAW);
-
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo);
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.size() * sizeof(unsigned int), indices.data(), GL_STATIC_DRAW);
-
-    glEnableVertexAttribArray(0);
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*) offsetof(Vertex, position_coords));
-
-    glEnableVertexAttribArray(1);
-    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*) offsetof(Vertex, normal_coords));
-
-    glEnableVertexAttribArray(2);
-    glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*) offsetof(Vertex, texture_coords));
-
-    glBindVertexArray(0);
+    create_array_object();
 }
 
 Planet::Planet(const char* texture_path, glm::vec3 _position, float _radius, float _rotation_speed,
