@@ -56,7 +56,7 @@ int main() {
     ImGui_ImplOpenGL3_Init("#version 330");
 
     State  state{};
-    Camera camera{{ 0.0f, 0.0f, 0.0f }};
+    Camera camera{{ 4.0f, 45.0f, 75.0f }};
     glfwSetWindowUserPointer(window, &state);
 
     const glm::vec3 UP{ 0.0f, 1.0f, 0.0f };
@@ -78,6 +78,13 @@ int main() {
 
     Planet* objects[]{ &sun, &mercury, &venus, &earth, &moon, &mars, &jupiter, &saturn, &uranus, &neptune };
 
+    glm::vec3 clear_color{ 0.0f, 0.0f, 0.0f };
+    glm::vec3 global_ambient{ 0.12f, 0.18f, 0.3f };
+    glm::vec3 light_ambient{ 0.52f, 0.51f, 0.36f };
+    glm::vec3 light_diffuse{ 0.8f, 0.77f, 0.66f };
+    glm::vec3 light_specular{ 1.0f, 1.0f, 1.0f };
+    float     shininess{ 50.0f };
+
     Shader shader{ "shaders/vertex.glsl", "shaders/fragment.glsl" };
     glUseProgram(shader.id);
 
@@ -87,22 +94,31 @@ int main() {
         state.delta.time = time - state.last_time;
         state.last_time  = time;
 
-        glClearColor(0.5f, 0.5f, 0.5f, 1.0f);
+        glClearColor(clear_color.r, clear_color.g, clear_color.b, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
         camera.update(state.camera_movement, state.delta);
         glm::mat4 proj{ glm::perspective(glm::radians(camera.fov), (float) WIDTH / HEIGHT, 0.1f, 10000.0f) };
         glm::mat4 view{ camera.view_matrix() };
 
+        shader.set_light_position(glm::vec3{ view * glm::vec4{ 0.0f, 0.0f, 0.0f, 1.0f }});
+        shader.set_global_ambient({ global_ambient, 1.0f });
+        shader.set_light_ambient({ light_ambient, 1.0f });
+        shader.set_light_diffuse({ light_diffuse, 1.0f });
+        shader.set_light_specular({ light_specular, 1.0f });
+        shader.set_shininess(shininess);
+
+
         for (const auto object : objects) {
             object->update(state.delta.time, state.base_speed);
         }
+
         for (const auto object : objects) {
-            glm::mat4 model{ 1.0f };
-            model = glm::translate(model, object->absolute_position(state.base_orbit_radius));
-            model = glm::rotate(model, object->rotation_angle, object->rotation_axis);
-            model = glm::scale(model, glm::vec3{ object->radius * state.base_radius });
-            shader.set_mvp(proj * view * model);
+            auto mv = view * object->model_matrix(state.base_radius, state.base_orbit_radius);
+            shader.set_mv(mv);
+            shader.set_mvp(proj * mv);
+            shader.set_normal_matrix(glm::transpose(glm::inverse(mv)));
+            shader.set_is_sun(object == &sun);
             object->render();
         }
 
@@ -116,6 +132,12 @@ int main() {
         ImGui::SliderFloat("speed", &state.base_speed, 0.0f, 2.0f);
         ImGui::SliderFloat("radius", &state.base_radius, 0.0f, 2.0f);
         ImGui::SliderFloat("distance", &state.base_orbit_radius, 1.0f, 5.0f);
+        ImGui::ColorEdit3("clear color", glm::value_ptr(clear_color));
+        ImGui::ColorEdit3("global ambient", glm::value_ptr(global_ambient));
+        ImGui::ColorEdit3("light ambient", glm::value_ptr(light_ambient));
+        ImGui::ColorEdit3("light diffuse", glm::value_ptr(light_diffuse));
+        ImGui::ColorEdit3("light specular", glm::value_ptr(light_specular));
+        ImGui::SliderFloat("shininess", &shininess, 1.0f, 100.0f);
         ImGui::End();
 
         ImGui::Render();

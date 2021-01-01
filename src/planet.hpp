@@ -17,6 +17,8 @@ struct Planet {
 
     [[nodiscard]] glm::vec3 absolute_position(float base_orbit_radius) const;
 
+    [[nodiscard]] glm::mat4 model_matrix(float base_radius, float base_orbit_radius) const;
+
     void update(float delta_time, float base_speed);
 
     void render() const;

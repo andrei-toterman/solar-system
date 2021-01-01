@@ -92,6 +92,14 @@ glm::vec3 Planet::absolute_position(float base_orbit_radius) const {
     return position;
 }
 
+glm::mat4 Planet::model_matrix(float base_radius, float base_orbit_radius) const {
+    glm::mat4 model{ 1.0f };
+    model = glm::translate(model, absolute_position(base_orbit_radius));
+    model = glm::rotate(model, rotation_angle, rotation_axis);
+    model = glm::scale(model, glm::vec3{ radius * base_radius });
+    return model;
+}
+
 void Planet::update(float delta_time, float base_speed) {
     rotation_angle += base_speed * rotation_speed * delta_time;
     if (parent) {
