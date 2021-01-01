@@ -18,6 +18,8 @@
 #include "basic_shader.hpp"
 #include "space_dome.hpp"
 
+//happy new year!
+
 void mouse_button_callback(GLFWwindow* window, int button, int action, int);
 
 void mouse_callback(GLFWwindow* window, double x, double y);
