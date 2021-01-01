@@ -5,7 +5,6 @@ uniform vec4 light_ambient;
 uniform vec4 light_diffuse;
 uniform vec4 light_specular;
 uniform float shininess;
-uniform bool is_sun;
 
 in vec3 fragment_position;
 in vec3 fragment_normal;
@@ -31,5 +30,5 @@ void main() {
     vec3 diffuse = (light_diffuse * texture_color * max(cos_theta, 0.0)).xyz;
     vec3 specular = (light_specular * texture_color * pow(max(cos_phi, 0.0), shininess)).xyz;
 
-    color = is_sun ? texture_color : vec4(ambient + diffuse + specular, 1.0);
+    color = vec4(ambient + diffuse + specular, 1.0);
 }

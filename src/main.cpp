@@ -7,13 +7,15 @@
 
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtc/type_ptr.hpp>
 
 #include <iostream>
 
 #include "planet.hpp"
-#include "shader.hpp"
+#include "phong_shader.hpp"
 #include "state.hpp"
 #include "camera.hpp"
+#include "basic_shader.hpp"
 
 void mouse_button_callback(GLFWwindow* window, int button, int action, int);
 
@@ -85,8 +87,8 @@ int main() {
     glm::vec3 light_specular{ 1.0f, 1.0f, 1.0f };
     float     shininess{ 50.0f };
 
-    Shader shader{ "shaders/vertex.glsl", "shaders/fragment.glsl" };
-    glUseProgram(shader.id);
+    PhongShader phong_shader{ "shaders/phong_vertex.glsl", "shaders/phong_fragment.glsl" };
+    BasicShader basic_shader{ "shaders/basic_vertex.glsl", "shaders/basic_fragment.glsl" };
 
     glEnable(GL_DEPTH_TEST);
     while (!glfwWindowShouldClose(window)) {
@@ -101,12 +103,12 @@ int main() {
         glm::mat4 proj{ glm::perspective(glm::radians(camera.fov), (float) WIDTH / HEIGHT, 0.1f, 10000.0f) };
         glm::mat4 view{ camera.view_matrix() };
 
-        shader.set_light_position(glm::vec3{ view * glm::vec4{ 0.0f, 0.0f, 0.0f, 1.0f }});
-        shader.set_global_ambient({ global_ambient, 1.0f });
-        shader.set_light_ambient({ light_ambient, 1.0f });
-        shader.set_light_diffuse({ light_diffuse, 1.0f });
-        shader.set_light_specular({ light_specular, 1.0f });
-        shader.set_shininess(shininess);
+        phong_shader.set_light_position(glm::vec3{ view * glm::vec4{ 0.0f, 0.0f, 0.0f, 1.0f }});
+        phong_shader.set_global_ambient({ global_ambient, 1.0f });
+        phong_shader.set_light_ambient({ light_ambient, 1.0f });
+        phong_shader.set_light_diffuse({ light_diffuse, 1.0f });
+        phong_shader.set_light_specular({ light_specular, 1.0f });
+        phong_shader.set_shininess(shininess);
 
 
         for (const auto object : objects) {
@@ -115,10 +117,15 @@ int main() {
 
         for (const auto object : objects) {
             auto mv = view * object->model_matrix(state.base_radius, state.base_orbit_radius);
-            shader.set_mv(mv);
-            shader.set_mvp(proj * mv);
-            shader.set_normal_matrix(glm::transpose(glm::inverse(mv)));
-            shader.set_is_sun(object == &sun);
+            if (object != &sun) {
+                glUseProgram(phong_shader.id);
+                phong_shader.set_mv(mv);
+                phong_shader.set_mvp(proj * mv);
+                phong_shader.set_normal_matrix(glm::transpose(glm::inverse(mv)));
+            } else {
+                glUseProgram(basic_shader.id);
+                basic_shader.set_mvp(proj * mv);
+            }
             object->render();
         }
 
