@@ -16,6 +16,7 @@
 #include "state.hpp"
 #include "camera.hpp"
 #include "basic_shader.hpp"
+#include "space_dome.hpp"
 
 void mouse_button_callback(GLFWwindow* window, int button, int action, int);
 
@@ -78,7 +79,21 @@ int main() {
     Planet uranus{ sun, "res/uranus.jpg", 287.1f, 2.53f, 14.79f, UP, 0.68f };
     Planet neptune{ sun, "res/neptune.jpg", 449.5, 2.46f, 9.71f, UP, 0.54f };
 
-    RenderObject* objects[]{ &sun, &mercury, &venus, &earth, &moon, &mars, &jupiter, &saturn, &uranus, &neptune };
+    SpaceDome space_dome{ "res/space.jpg" };
+
+    RenderObject* objects[]{
+            &space_dome,
+            &sun,
+            &mercury,
+            &venus,
+            &earth,
+            &moon,
+            &mars,
+            &jupiter,
+            &saturn,
+            &uranus,
+            &neptune
+    };
 
     glm::vec3 clear_color{ 0.0f, 0.0f, 0.0f };
     glm::vec3 global_ambient{ 0.12f, 0.18f, 0.3f };
@@ -117,7 +132,7 @@ int main() {
 
         for (const auto object : objects) {
             auto mv = view * object->model_matrix(state);
-            if (object != &sun) {
+            if (object != &sun && object != &space_dome) {
                 glUseProgram(phong_shader.id);
                 phong_shader.set_mv(mv);
                 phong_shader.set_mvp(proj * mv);

@@ -3,7 +3,6 @@
 #include <GL/glew.h>
 
 #include <vector>
-#include "vertex.hpp"
 #include "state.hpp"
 #include "render_object.hpp"
 
