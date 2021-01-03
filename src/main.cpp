@@ -77,6 +77,8 @@ int main() {
     Planet earth{ sun, "res/earth.jpg", 14.9f, 0.63f, 1.67f, UP, 2.98f };
     Planet moon{ earth, "res/moon.jpg", 0.38f, 0.17f, 1.0f, UP, 0.1f };
     Planet mars{ sun, "res/mars.jpg", 22.7f, 0.33f, 0.86f, UP, 2.41f };
+    Planet phobos{ mars, "res/phobos.jpg", 0.25f, 0.04f, 1.5f, UP, 0.3f };
+    Planet deimos{ mars, "res/deimos.jpg", 0.35f, 0.02f, 1.0f, UP, 0.1f };
     Planet jupiter{ sun, "res/jupiter.jpg", 77.8f, 6.9f, 45.58f, UP, 1.31f };
     Planet saturn{ sun, "res/saturn.jpg", 143.4f, 5.82f, 36.84f, UP, 0.97f };
     Planet uranus{ sun, "res/uranus.jpg", 287.1f, 2.53f, 14.79f, UP, 0.68f };
@@ -92,6 +94,8 @@ int main() {
             &earth,
             &moon,
             &mars,
+            &phobos,
+            &deimos,
             &jupiter,
             &saturn,
             &uranus,
