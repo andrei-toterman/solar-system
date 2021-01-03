@@ -18,8 +18,6 @@
 #include "basic_shader.hpp"
 #include "space_dome.hpp"
 
-// Happy new year!
-
 void mouse_button_callback(GLFWwindow* window, int button, int action, int);
 
 void mouse_callback(GLFWwindow* window, double x, double y);
@@ -27,6 +25,8 @@ void mouse_callback(GLFWwindow* window, double x, double y);
 void scroll_callback(GLFWwindow* window, double, double delta_scroll);
 
 void key_callback(GLFWwindow* window, int key, int, int action, int);
+
+void resize_callback(GLFWwindow*, int width, int height);
 
 int main() {
     if (!glfwInit()) {
@@ -54,6 +54,7 @@ int main() {
     glfwSetCursorPosCallback(window, mouse_callback);
     glfwSetScrollCallback(window, scroll_callback);
     glfwSetKeyCallback(window, key_callback);
+    glfwSetFramebufferSizeCallback(window, resize_callback);
 
     ImGui::CreateContext();
     ImGui::StyleColorsDark();
@@ -239,4 +240,8 @@ void key_callback(GLFWwindow* window, int key, int, int action, int) {
             default: break;
         }
     }
+}
+
+void resize_callback(GLFWwindow*, int width, int height) {
+    glViewport(0, 0, width, height);
 }
