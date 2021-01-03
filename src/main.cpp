@@ -17,6 +17,7 @@
 #include "camera.hpp"
 #include "basic_shader.hpp"
 #include "space_dome.hpp"
+#include "ring.hpp"
 
 void mouse_button_callback(GLFWwindow* window, int button, int action, int);
 
@@ -81,7 +82,9 @@ int main() {
     Planet deimos{ mars, "res/deimos.jpg", 0.35f, 0.02f, 1.0f, UP, 0.1f };
     Planet jupiter{ sun, "res/jupiter.jpg", 77.8f, 6.9f, 45.58f, UP, 1.31f };
     Planet saturn{ sun, "res/saturn.jpg", 143.4f, 5.82f, 36.84f, UP, 0.97f };
+    Ring   saturn_ring{ saturn, "res/saturn_ring.jpg", 0.2f, 10.0f, UP, 61.2f };
     Planet uranus{ sun, "res/uranus.jpg", 287.1f, 2.53f, 14.79f, UP, 0.68f };
+    Ring   uranus_ring{ uranus, "res/uranus_ring.jpg", 0.1f, 5.0f, UP, 25.2f };
     Planet neptune{ sun, "res/neptune.jpg", 449.5, 2.46f, 9.71f, UP, 0.54f };
 
     SpaceDome space_dome{ "res/space.jpg" };
@@ -98,7 +101,9 @@ int main() {
             &deimos,
             &jupiter,
             &saturn,
+            &saturn_ring,
             &uranus,
+            &uranus_ring,
             &neptune
     };
 

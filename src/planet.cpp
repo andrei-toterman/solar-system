@@ -10,14 +10,14 @@ Planet::Planet(const char* texture_path) : RenderObject{ texture_path } {
     indices.reserve(precision * precision * 6);
 
     for (int i = 0; i <= precision; i++) {
-        float    phi = glm::pi<float>() * (float) i / precision;
+        auto     phi = glm::pi<float>() * (float) i / precision;
         for (int j   = 0; j <= precision; j++) {
-            float theta = glm::pi<float>() * 2.0f * (float) j / precision;
-            auto  x     = -glm::cos(theta) * glm::sin(phi);
-            auto  y     = glm::cos(phi);
-            auto  z     = glm::sin(theta) * glm::sin(phi);
-            auto  u     = (float) j / precision;
-            auto  v     = (float) i / precision;
+            auto theta = glm::pi<float>() * 2.0f * (float) j / precision;
+            auto x     = -glm::cos(theta) * glm::sin(phi);
+            auto y     = glm::cos(phi);
+            auto z     = glm::sin(theta) * glm::sin(phi);
+            auto u     = (float) j / precision;
+            auto v     = (float) i / precision;
             vertices.push_back({{ x, y, z },
                                 { x, y, z },
                                 { u, v }});
