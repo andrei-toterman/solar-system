@@ -67,8 +67,12 @@ glm::vec3 Planet::absolute_position(float base_orbit_radius) const {
 glm::mat4 Planet::model_matrix(const State& state) const {
     glm::mat4 model{ 1.0f };
     model = glm::translate(model, absolute_position(state.base_orbit_radius));
-    model = glm::rotate(model, rotation_angle, rotation_axis);
     model = glm::scale(model, glm::vec3{ radius * state.base_radius });
+    model = glm::rotate(model, rotation_angle, rotation_axis);
+    glm::vec3 axis_align{ glm::cross({ 0.0f, 1.0f, 0.0f }, glm::normalize(rotation_axis)) };
+    if (glm::length(axis_align) != 0) {
+        model = glm::rotate(model, glm::asin(glm::length(axis_align)), axis_align);
+    }
     return model;
 }
 

@@ -74,18 +74,18 @@ int main() {
     // orbit speed: 10 km/s
     Planet sun{ "res/sun.jpg", { 0.0f, 0.0f, 0.0f }, 69.5f * 0.2f, 1.99f, UP };
     Planet mercury{ sun, "res/mercury.jpg", 5.7f, 0.24f, 0.01f, UP, 4.74f };
-    Planet venus{ sun, "res/venus.jpg", 10.8f, 0.6f, 0.006f, UP, 3.5f };
-    Planet earth{ sun, "res/earth.jpg", 14.9f, 0.63f, 1.67f, UP, 2.98f };
-    Planet moon{ earth, "res/moon.jpg", 0.38f, 0.17f, 1.0f, UP, 0.1f };
-    Planet mars{ sun, "res/mars.jpg", 22.7f, 0.33f, 0.86f, UP, 2.41f };
-    Planet phobos{ mars, "res/phobos.jpg", 0.25f, 0.04f, 1.5f, UP, 0.3f };
-    Planet deimos{ mars, "res/deimos.jpg", 0.35f, 0.02f, 1.0f, UP, 0.1f };
-    Planet jupiter{ sun, "res/jupiter.jpg", 77.8f, 6.9f, 45.58f, UP, 1.31f };
-    Planet saturn{ sun, "res/saturn.jpg", 143.4f, 5.82f, 36.84f, UP, 0.97f };
-    Ring   saturn_ring{ saturn, "res/saturn_ring.jpg", 0.2f, 10.0f, UP, 61.2f };
-    Planet uranus{ sun, "res/uranus.jpg", 287.1f, 2.53f, 14.79f, UP, 0.68f };
-    Ring   uranus_ring{ uranus, "res/uranus_ring.jpg", 0.1f, 5.0f, UP, 25.2f };
-    Planet neptune{ sun, "res/neptune.jpg", 449.5, 2.46f, 9.71f, UP, 0.54f };
+    Planet venus{ sun, "res/venus.jpg", 10.8f, 0.6f, 0.006f, { -0.1f, -1.0f, 0.0f }, 3.5f };
+    Planet earth{ sun, "res/earth.jpg", 14.9f, 0.63f, 1.67f, { 0.42f, 1.0f, 0.0f }, 2.98f };
+    Planet moon{ earth, "res/moon.jpg", 0.38f, 0.17f, 1.0f, earth.rotation_axis, 0.1f };
+    Planet mars{ sun, "res/mars.jpg", 22.7f, 0.33f, 0.86f, { 0.46f, 1.0f, 0.0f }, 2.41f };
+    Planet phobos{ mars, "res/phobos.jpg", 0.25f, 0.04f, 1.5f, mars.rotation_axis, 0.3f };
+    Planet deimos{ mars, "res/deimos.jpg", 0.35f, 0.02f, 1.0f, mars.rotation_axis, 0.1f };
+    Planet jupiter{ sun, "res/jupiter.jpg", 77.8f, 6.9f, 45.58f, { 0.1f, 1.0f, 0.0f }, 1.31f };
+    Planet saturn{ sun, "res/saturn.jpg", 143.4f, 5.82f, 36.84f, { 0.5f, 1.0f, 0.0f }, 0.97f };
+    Ring   saturn_ring{ saturn, "res/saturn_ring.jpg", 0.2f, 10.0f, saturn.rotation_axis, 61.2f };
+    Planet uranus{ sun, "res/uranus.jpg", 287.1f, 2.53f, 14.79f, { -8.1f, 1.0f, 0.0f }, 0.68f };
+    Ring   uranus_ring{ uranus, "res/uranus_ring.jpg", 0.1f, 5.0f, uranus.rotation_axis, 25.2f };
+    Planet neptune{ sun, "res/neptune.jpg", 449.5, 2.46f, 9.71f, { 0.53f, 1.0f, 0.0f }, 0.54f };
 
     SpaceDome space_dome{ "res/space.jpg" };
 
